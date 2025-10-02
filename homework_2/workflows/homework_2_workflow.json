@@ -1,0 +1,114 @@
+{
+  "name": "Homework 2 - AI Agent with Database Tools",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "loadPreviousSession": false
+        }
+      },
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "id": "chat-trigger-1",
+      "webhookId": "homework2-chat"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Query products from MongoDB database. Use this to find and analyze product information.",
+        "collection": "products",
+        "options": {}
+      },
+      "name": "MongoDB Tool",
+      "type": "n8n-nodes-base.mongoDbTool",
+      "typeVersion": 1.2,
+      "position": [460, 200],
+      "id": "mongodb-tool-1",
+      "credentials": {
+        "mongoDb": {
+          "id": "mongodb-account",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "name": "Ollama GPT-OSS Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [680, 200],
+      "id": "ollama-model-1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful assistant that can query and analyze database data. Use the MongoDB tool to find products and provide analysis. Answer questions about what types of products are available and provide summaries.",
+          "returnIntermediateSteps": true
+        }
+      },
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "id": "ai-agent-1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama GPT-OSS Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "homework-2-basic",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "homework-2-workflow",
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "homework-tag",
+      "name": "homework"
+    }
+  ]
+}

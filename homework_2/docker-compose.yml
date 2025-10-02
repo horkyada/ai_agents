@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: homework2-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: homework2
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
+    networks:
+      - homework2-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: homework2-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      # Mount local Ollama models directory (uncomment and adjust path)
+      - ~/.ollama:/root/.ollama
+      # Or use Docker volume for persistence
+      # - ollama_data:/root/.ollama
+    networks:
+      - homework2-network
+    # Add memory limits and environment variables for stability
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 8G
+    environment:
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: homework2-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=Europe/Prague
+      # Increase Node.js memory limit for LLM operations
+      - NODE_OPTIONS=--max-old-space-size=4096
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - homework2-network
+    depends_on:
+      - mongodb
+      - ollama
+
+volumes:
+  mongodb_data:
+  n8n_data:
+  ollama_data:
+
+networks:
+  homework2-network:
+    driver: bridge
