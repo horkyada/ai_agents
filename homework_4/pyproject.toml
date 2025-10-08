@@ -1,0 +1,10 @@
+[project]
+name = "homework_4"
+version = "0.1.0"
+description = "Reinforcement Learning - MountainCar"
+requires-python = ">=3.12"
+dependencies = [
+    "gymnasium[classic-control]>=1.0.0",
+    "numpy>=1.24.0",
+    "pygame>=2.5.0",
+]
